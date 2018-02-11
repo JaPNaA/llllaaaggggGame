@@ -4,6 +4,8 @@ const HTTP = require("http"),
 
 class Server {
     constructor(port) {
+        this.game = null;
+
         this.port = port;
         this.server = HTTP.createServer((q, r) => this.httpServerFunc(q, r));
         this.wsServer = new WS({
@@ -13,18 +15,21 @@ class Server {
         this.mimes = JSON.parse(FS.readFileSync("mimes.json").toString());
         this.data404 = FS.readFileSync("404.html");
 
+        this.disableCache = true; // -------------------------------- ENABLE WHEN DONE
+
         this.cache = {};
         this.redi = {
             "/": "/index.html"
         };
 
-        this.connectHttpServer();
+        this.clients = [];
     }
+
     httpServerFunc(q, r) {
         var address = q.url,
             cacheD = this.cache[address];
 
-        if (cacheD) {
+        if (cacheD && !this.disableCache) {
             r.writeHead(200, {
                 'content-type': cacheD[1]
             });
@@ -75,9 +80,33 @@ class Server {
         return a;
     }
 
-    connectHttpServer() {
+    connectServer() {
         this.server.listen(this.port);
         console.log(`Hosting on port ${this.port}.`);
+
+        this.wsServer.on("request", req => {
+            let C = req.accept(null);
+
+            this.clients.push(C);
+            this.game.add(C);
+
+            C.on("message", e => {
+                console.log("WS Msg " + e.type + " ->", e.utf8Data || e.binaryData);
+                C.plr.msg(e.type, e.utf8Data || e.binaryData);
+            });
+            C.on("close", e => {
+                this.clients.splice(this.clients.indexOf(C), 1);
+                console.log("WS Disconnect " + this.clients.length);
+
+                C.plr.disconnect();
+            });
+
+            console.log("WS Connect " + this.clients.length);
+        });
+    }
+
+    start() {
+        this.connectServer();
     }
 }
 
