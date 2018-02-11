@@ -1,4 +1,7 @@
-const SERVER = require("./server.js"),
-      GAME = require("./game.js");
+const Server = require("./server.js").Server,
+      Game = require("./game.js").Game;
 
-console.log("Hi");
+var server = new Server(80),
+    game = new Game(server);
+
+// 
