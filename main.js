@@ -5,3 +5,4 @@ var server = new Server(80),
     game = new Game(server);
 
 server.start();
+game.start();

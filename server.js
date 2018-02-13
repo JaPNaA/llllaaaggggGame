@@ -91,7 +91,7 @@ class Server {
             this.game.add(C);
 
             C.on("message", e => {
-                console.log("WS Msg " + e.type + " ->", e.utf8Data || e.binaryData);
+                // console.log("WS Msg " + e.type + " ->", e.utf8Data || e.binaryData);
                 C.plr.msg(e.type, e.utf8Data || e.binaryData);
             });
             C.on("close", e => {
