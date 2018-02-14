@@ -1,4 +1,5 @@
 const U = require("./utils.js"),
+    Data = require("./data.js").Data, 
     SQRT2 = Math.SQRT2 || Math.sqrt(2);
 
 class Player {
@@ -14,6 +15,8 @@ class Player {
 
         this.tvx = 0;
         this.tvy = 0;
+
+        this.id = this.game.cid++;
     }
     disconnect() {
         this.game.disconnect(this);
@@ -63,15 +66,22 @@ class Player {
         this.vx = this.vx * 0.995 ** tt;
         this.vy = this.vy * 0.995 ** tt;
 
-        // TEST
-        let ab = new ArrayBuffer(12),
-            v = new Float32Array(ab);
-        
-        v[0] = 0;
-        v[1] = this.x;
-        v[2] = this.y;
+        this.send(0);
+    }
+    send(e) {
+        switch(e) {
+            case 0: // position(s)
+                let pr = 7,
+                    d = new Data(0, this.game.clients.length * pr);
 
-        this.client.send(U.arrayToBuffer(ab));
+                for(let i = 0; i < this.game.clients.length; i++) {
+                    let r = this.game.clients[i].plr;
+                    d.set(i * pr, U.f([r.id, r.x, r.y, r.vx, r.vy, r.tvx, r.tvy]));
+                }
+                
+                this.client.send(d.get());
+                break;
+        }
     }
 }
 
@@ -79,6 +89,8 @@ class Game {
     constructor(server) {
         this.server = server;
         this.then = Date.now();
+
+        this.cid = 0;
 
         server.game = this;
     }

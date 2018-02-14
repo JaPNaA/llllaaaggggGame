@@ -21,7 +21,16 @@ function arrayToBuffer(ab) {
     return b;
 }
 
+function f(e) {
+    let el = e.length;
+    for(let i = 0; i < el; i++) {
+        e[i] = Math.round(e[i]);
+    }
+    return e;
+}
+
 module.exports = {
     arrayToBuffer: arrayToBuffer,
-    bufferToArray: bufferToArray
+    bufferToArray: bufferToArray,
+    f: f
 };

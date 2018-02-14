@@ -1,15 +1,3 @@
-// var ws = new WebSocket(location.href.replace("http", "ws"));
-// ws.onopen = function() {
-//     ws.send("HI");
-
-//     var ab = new ArrayBuffer(16),
-//         v = new Float64Array(ab);
-//     v[0] = 8349028;
-
-//     ws.send(ab);
-//     ws.close();
-// };
-
 class G {
     constructor() {
         this.cvs = document.getElementById("c");
@@ -75,7 +63,7 @@ class G {
     onmsg(e) {
         var reader = new FileReader();
         reader.addEventListener("loadend", () => {
-            this.parseMessage(new Float32Array(reader.result));
+            this.parseMessage(reader.result);
         });
         reader.readAsArrayBuffer(e.data);
     }
@@ -85,12 +73,23 @@ class G {
     }
 
     parseMessage(e) {
-        // TEST
-        switch(e[0]) {
+        let type = new Uint8Array(e)[0];
+        switch(type) {
             case 0:
+                let pr = 7,
+                    r = new Int32Array(e).slice(1),
+                    rl = r.length / pr;
+                
+                console.log(r);
+
                 this.X.clearRect(0, 0, this.cvs.width, this.cvs.height);
-                this.X.fillStyle = "#000";
-                this.X.fillRect(e[1] / 1000, e[2] / 1000, 16, 16);
+
+                for(let i = 0; i < rl; i++) {
+                    this.X.fillStyle = "#000";
+                    this.X.fillRect(r[1 + pr * i] / 1000, r[2 + pr * i] / 1000, 16, 16);
+                }
+
+                break;
         }
     }
 
