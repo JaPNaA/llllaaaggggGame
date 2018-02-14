@@ -4,11 +4,9 @@ class G {
         this.X = this.cvs.getContext("2d");
         this.obs = [];
 
-        this.socket = new WebSocket(location.href.replace("http", "ws"));
-        this.socket.onopen = () => this.ready = true;
-        this.socket.onmessage = e => this.onmsg(e);
-
-        this.ready = false;
+        this.socketWorker = new Worker("socketWorker.js");
+        this.socketWorker.onmessage = e => this.parseMessage(e);
+        this.socketWorker.postMessage("U" + location.href.replace("http", "ws"));
 
         this.key = [];
         this.lastDirection = -1;
@@ -44,8 +42,6 @@ class G {
     }
 
     sendDir() {
-        if (!this.ready) return;
-
         let ld = this.lastDirection,
             d = this.direction;
 
@@ -57,34 +53,38 @@ class G {
         v[0] = 0;
         v[1] = d;
 
-        this.socket.send(ab);
+        this.socketWorker.postMessage(ab);
     }
 
-    onmsg(e) {
-        var reader = new FileReader();
-        reader.addEventListener("loadend", () => {
-            this.parseMessage(reader.result);
-        });
-        reader.readAsArrayBuffer(e.data);
-    }
     onresize() {
         this.cvs.width = innerWidth;
         this.cvs.height = innerHeight;
     }
 
     parseMessage(e) {
+        let r = e.data;
+        if (typeof r == "object") {
+            this.parseMessageB(r);
+        } else {
+            this.parseMessageS(r);
+        }
+    }
+
+    parseMessageS(e) {
+        console.log(e);
+    }
+
+    parseMessageB(e) {
         let type = new Uint8Array(e)[0];
-        switch(type) {
+        switch (type) {
             case 0:
                 let pr = 7,
                     r = new Int32Array(e).slice(1),
                     rl = r.length / pr;
-                
-                console.log(r);
 
                 this.X.clearRect(0, 0, this.cvs.width, this.cvs.height);
 
-                for(let i = 0; i < rl; i++) {
+                for (let i = 0; i < rl; i++) {
                     this.X.fillStyle = "#000";
                     this.X.fillRect(r[1 + pr * i] / 1000, r[2 + pr * i] / 1000, 16, 16);
                 }
