@@ -1,3 +1,5 @@
+'use strict';
+
 function bufferToArray(buf) {
     var bl = buf.length,
         v = new Uint8Array(bl);

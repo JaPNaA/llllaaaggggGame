@@ -1,3 +1,5 @@
+'use strict';
+
 const U = require("./utils.js");
 
 class Data {
@@ -6,7 +8,11 @@ class Data {
 
         switch(type) {
             case 0:
-                this.ab = new ArrayBuffer(len * 4); // *4 for 32bit *2 for x and y
+                this.ab = new ArrayBuffer(len * 4); // *4 for 32bit
+                this.v = new Int32Array(this.ab);
+                break;
+            case 1:
+                this.ab = new ArrayBuffer(len * 4);
                 this.v = new Int32Array(this.ab);
                 break;
             default:

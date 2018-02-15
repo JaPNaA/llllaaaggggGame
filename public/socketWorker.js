@@ -1,14 +1,20 @@
+'use strict';
+
 var D = {
     ready: false,
     socket: null
 };
 
 function onmsg(e) {
-    var reader = new FileReader();
-    reader.addEventListener("loadend", () => {
-        postMessage(reader.result);
-    });
-    reader.readAsArrayBuffer(e.data);
+    if(typeof e.data == "string") {
+        postMessage(JSON.parse(e.data));
+    } else {
+        var reader = new FileReader();
+        reader.addEventListener("loadend", () => {
+            postMessage(reader.result);
+        });
+        reader.readAsArrayBuffer(e.data);
+    }
 }
 
 function main(address) {

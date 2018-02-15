@@ -1,3 +1,5 @@
+'use strict';
+
 const HTTP = require("http"),
     WS = require("websocket").server,
     FS = require("fs");
@@ -8,6 +10,10 @@ class Server {
 
         this.port = port;
         this.server = HTTP.createServer((q, r) => this.httpServerFunc(q, r));
+        this.server.on("error", function() {
+            throw new Error("failed to connect");
+        });
+
         this.wsServer = new WS({
             httpServer: this.server
         });

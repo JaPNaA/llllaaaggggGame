@@ -1,3 +1,5 @@
+'use strict';
+
 class G {
     constructor() {
         this.cvs = document.getElementById("c");
@@ -10,6 +12,8 @@ class G {
 
         this.key = [];
         this.lastDirection = -1;
+
+        this.fov = 1;
     }
 
     get direction() {
@@ -63,7 +67,7 @@ class G {
 
     parseMessage(e) {
         let r = e.data;
-        if (typeof r == "object") {
+        if (r.constructor == ArrayBuffer) {
             this.parseMessageB(r);
         } else {
             this.parseMessageS(r);
@@ -77,7 +81,7 @@ class G {
     parseMessageB(e) {
         let type = new Uint8Array(e)[0];
         switch (type) {
-            case 0:
+            case 0: {
                 let pr = 7,
                     r = new Int32Array(e).slice(1),
                     rl = r.length / pr;
@@ -88,8 +92,16 @@ class G {
                     this.X.fillStyle = "#000";
                     this.X.fillRect(r[1 + pr * i] / 1000, r[2 + pr * i] / 1000, 16, 16);
                 }
-
+                console.log("C");
+                
                 break;
+            }
+
+            case 1: {
+                let r = new Int32Array(e).slice(1);
+                this.fov = r[0];
+                console.log(this.fov);
+            }
         }
     }
 
