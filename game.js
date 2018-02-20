@@ -2,12 +2,19 @@
 
 const U = require("./utils.js"),
     Data = require("./data.js").Data,
+    VERSION = "0.1",
     SQRT2 = Math.SQRT2 || Math.sqrt(2);
 
 class Player {
     constructor(C, game) {
         this.client = C;
         this.game = game;
+
+        this.playersSee = [];
+        this.playersSeeChanges = {
+            add: [],
+            rem: []
+        };
 
         this.width = 10000;
         this.height = 10000;
@@ -23,7 +30,7 @@ class Player {
 
         this.posChange = false;
 
-        this.fov = 100000;
+        this.fov = 1000000;
 
         this.id = this.game.cid++;
 
@@ -34,20 +41,30 @@ class Player {
         return this._x;
     }
     set x(e) {
-        if(e == this._x) return;
+        if (Math.floor(e) != Math.floor(this._x)) {
+            this.posChange = true;
+        }
         this._x = e;
-        this.posChange = true;
     }
     get y() {
         return this._y;
     }
     set y(e) {
-        if (e == this._y) return;
+        if (Math.floor(e) != Math.floor(this._y)) {
+            this.posChange = true;
+        }
         this._y = e;
-        this.posChange = true;
     }
 
     disconnect() {
+        for(let i of this.game.clients) {
+            let j = i.plr;
+
+            if (j.playersSee.includes(this)) {
+                j.playersSeeChanges.rem.push(this);
+            }
+        }
+        
         this.game.disconnect(this);
     }
 
@@ -87,11 +104,14 @@ class Player {
     }
 
     moveVel(tt) {
-        this.vx += this.tvx * tt;
-        this.vy += this.tvy * tt;
-
+        
+        // this.x += this.vx * tt;
+        // this.y += this.vy * tt;
         this.x += this.vx * tt;
         this.y += this.vy * tt;
+
+        this.vx += this.tvx * tt;
+        this.vy += this.tvy * tt;
 
         this.vx = this.vx * 0.995 ** tt;
         this.vy = this.vy * 0.995 ** tt;
@@ -120,12 +140,38 @@ class Player {
             }
         }
     }
+    updPlayersSee() {
+        // get rid of players too far away from fov, add players that can be seen by fov
+        for(let i of this.game.clients) {
+            let j = i.plr;
+            if(!this.playersSee.includes(j)) {
+                this.playersSeeChanges.add.push(j);
+            }
+        }
+
+        // add players
+        for(let i of this.playersSeeChanges.add) {
+            this.playersSee.push(i);
+            this.send(2, i);
+            console.log("\x1b[31m", this.id + " <- new " + i.id);
+        }
+        this.playersSeeChanges.add.length = 0;
+
+        // remove players
+        for(let i of this.playersSeeChanges.rem) {
+            this.send(4, i.id);
+            console.log("\x1b[31m", this.id + " <- rem " + i.id);
+            this.playersSee.splice(this.playersSee.indexOf(i), 1);
+        }
+        this.playersSeeChanges.rem.length = 0;
+    }
 
     tick(tt) {
         this.posChange = false;
         
         this.moveVel(tt);
         this.moveBorder(tt);
+        this.updPlayersSee();
     }
     sendTick() {
         this.send(0);
@@ -143,7 +189,7 @@ class Player {
                     for (let i = 0; i < this.game.clients.length; i++) {
                         let r = this.game.clients[i].plr;
                         if(r.posChange) {
-                            d.push(...U.f([r.id, r.x, r.y, r.vx, r.vy, r.tvx, r.tvy]));
+                            d.push(...U.f([r.id, r.x, r.y, r.vx * 1e6, r.vy * 1e6, r.tvx, r.tvy]));
                         }
                     }
 
@@ -163,19 +209,40 @@ class Player {
             case 2:
                 { // send data about a player
                     let a = args[0];
-                    this.client.send(JSON.stringify({
+                    this.client.send(JSON.stringify([2, {
                         n: "JaP_is_kewl",
                         i: a.id,
                         w: a.width,
                         h: a.height,
-                        c: a.color
-                    }));
+                        x: a.x,
+                        y: a.x,
+                        c: a.color,
+                        f: this.id == a.id
+                    }]));
+                    break;
+                }
+            case 3:
+                { // send data about game
+                    let d = new Data(3, 2);
+                    d.set(0, this.game.width)
+                     .set(1, this.game.height);
+                    
+                    this.client.send(d.get());
+                    break;
+                }
+            case 4:
+                { // tell to remove player
+                    let d = new Data(4, 1);
+                    d.set(0, args[0]);
+
+                    this.client.send(d.get());
                 }
         }
     }
     sendStart() {
+        this.send(3);
         this.send(1);
-        this.send(2, this);
+        this.client.send(`["version", "${VERSION}"]`);
     }
 }
 
@@ -218,7 +285,7 @@ class Game {
     }
 
     start() {
-        this.sI = setInterval(() => this.tick(), 50);
+        this.sI = setInterval(() => this.tick(), 100);
     }
 }
 

@@ -7,14 +7,15 @@ class Data {
         len++; // make space for type
 
         switch(type) {
-            case 0:
+            case 0: // position
+            case 1: // other info ([here and down] may need to split)
+            case 3: // map data
+            case 4: // remove player
                 this.ab = new ArrayBuffer(len * 4); // *4 for 32bit
                 this.v = new Int32Array(this.ab);
                 break;
-            case 1:
-                this.ab = new ArrayBuffer(len * 4);
-                this.v = new Int32Array(this.ab);
-                break;
+                
+            case 2: // player info
             default:
                 throw new Error("Invalid type: " + type);
         }

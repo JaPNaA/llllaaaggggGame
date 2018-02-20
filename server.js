@@ -52,12 +52,12 @@ class Server {
 
             this.readFile(rAddress)
                 .then((d) => {
-                    let mime = this.mimes[
+                    let mime = d[0] == 200 ? this.mimes[
                         rAddress.substring(
                             rAddress.lastIndexOf('.'),
                             rAddress.length
                         )
-                    ] || "text/plain";
+                    ] || "text/plain" : "text/html";
 
                     r.writeHead(d[0], {
                         'content-type': mime
@@ -70,7 +70,7 @@ class Server {
                 });
         }
 
-        console.log("GET " + q.connection.remoteAddress + " <- " + q.url);
+        console.log("\x1b[32m", "GET " + q.connection.remoteAddress + " <- " + q.url);
     }
 
     async readFile(u) {
@@ -88,7 +88,7 @@ class Server {
 
     connectServer() {
         this.server.listen(this.port);
-        console.log(`Hosting on port ${this.port}.`);
+        console.log("\x1b[42m", `Hosting on port ${this.port}.`);
 
         this.wsServer.on("request", req => {
             let C = req.accept(null);
@@ -101,10 +101,10 @@ class Server {
                 C.plr.msg(e.type, e.utf8Data || e.binaryData);
             });
             C.on("close", e => {
+                C.plr.disconnect();
+
                 this.clients.splice(this.clients.indexOf(C), 1);
                 console.log("WS Disconnect " + this.clients.length);
-
-                C.plr.disconnect();
             });
 
             console.log("WS Connect " + this.clients.length);

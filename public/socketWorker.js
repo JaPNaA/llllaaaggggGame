@@ -1,6 +1,6 @@
 'use strict';
 
-var D = {
+const D = {
     ready: false,
     socket: null
 };

@@ -8,3 +8,6 @@ var server = new Server(process.env.PORT || 80),
 
 server.start();
 game.start();
+
+global.server = server;
+global.game = game;
