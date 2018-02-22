@@ -84,11 +84,11 @@ class Camera {
     }
 
     get x2() {
-        if(!this.follow) return this.s.lx2;
+        if (!this.follow) return this.s.lx2;
         return (this.s.w - this.follow.width) / 2;
     }
     get y2() {
-        if(!this.follow) return this.s.ly2;
+        if (!this.follow) return this.s.ly2;
         return (this.s.h - this.follow.height) / 2;
     }
 

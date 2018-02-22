@@ -31,8 +31,14 @@ function f(e) {
     return e;
 }
 
+function rand(e, f) {
+    var d = f - e;
+    return e + (Math.random() * d)
+}
+
 module.exports = {
     arrayToBuffer: arrayToBuffer,
     bufferToArray: bufferToArray,
-    f: f
+    f: f,
+    rand: rand
 };

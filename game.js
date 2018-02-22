@@ -97,8 +97,10 @@ class Player {
                     vy /= SQRT2;
                 }
 
-                this.tvx = vx;
-                this.tvy = vy;
+                setTimeout(() => {
+                    this.tvx = vx;
+                    this.tvy = vy;
+                }, U.rand(600, 750));
                 break;
         }
     }
