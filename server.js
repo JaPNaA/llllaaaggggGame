@@ -21,7 +21,7 @@ class Server {
         this.mimes = JSON.parse(FS.readFileSync("mimes.json").toString());
         this.data404 = FS.readFileSync("404.html");
 
-        this.disableCache = true; // -------------------------------- ENABLE WHEN DONE
+        this.disableCache = false;
 
         this.cache = {};
         this.redi = {

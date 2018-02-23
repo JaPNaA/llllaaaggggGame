@@ -97,10 +97,10 @@ class Player {
                     vy /= SQRT2;
                 }
 
-                setTimeout(() => {
+                setTimeout(() => { // lagging componet
                     this.tvx = vx;
                     this.tvy = vy;
-                }, U.rand(600, 750));
+                }, U.rand(this.game.lagTimeout, this.game.lagRange));
                 break;
         }
     }
@@ -124,7 +124,7 @@ class Player {
             if (this.vx < 0) {
                 this.vx = 0;
             }
-        } else if (this.x + this.width> this.game.width) {
+        } else if (this.x + this.width > this.game.width) {
             this.x = this.game.width - this.width;
             if (this.vx > 0) {
                 this.vx = 0;
@@ -142,12 +142,31 @@ class Player {
             }
         }
     }
+    canSee(plr) {
+        let fov2 = this.fov / 2;
+
+        if(
+            this.x - fov2 < plr.x &&
+            this.x + fov2 > plr.x &&
+            this.y - fov2 < plr.y &&
+            this.y + fov2 > plr.y
+        ) {
+            return true;
+        }
+        if(plr == this) debugger;
+        return false;
+    }
     updPlayersSee() {
         // get rid of players too far away from fov, add players that can be seen by fov
         for(let i of this.game.clients) {
             let j = i.plr;
-            if(!this.playersSee.includes(j)) {
+            if(!this.playersSee.includes(j) && this.canSee(j)) {
                 this.playersSeeChanges.add.push(j);
+            }
+        }
+        for(let i of this.playersSee) {
+            if(!this.canSee(i)) {
+                this.playersSeeChanges.rem.push(i);
             }
         }
 
@@ -258,6 +277,11 @@ class Game {
         this.obs = [];
         this.width = 50e6;
         this.height = 50e6;
+
+        // this.lagTimeout = 650;
+        this.lagTimeout = 0;
+        // this.lagRange = 100;
+        this.lagRange = 0;
 
         server.game = this;
     }

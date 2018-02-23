@@ -93,7 +93,11 @@ class Camera {
     }
 
     move(tt) {
-        if (this.follow) {
+        f: if (this.follow) {
+            if(!this.follow.follow) {
+                this.follow = null;
+                break f;
+            }
             this.tx = this.follow.x;
             this.ty = this.follow.y;
         }
@@ -254,7 +258,15 @@ class G {
                 }
                 break;
             case 2:
-                this.obs.push(new Thing(d[0], this));
+                {
+                    let e = this.obs.find(e => e.id == d[0].id);
+                    if (e) {
+                        Object.defineProperties(e, d[0]);
+                    } else {
+                        this.obs.push(new Thing(d[0], this));
+                    }
+                    break;
+                }
         }
     }
 
@@ -276,7 +288,7 @@ class G {
                         a = this.obs.indexOf(this.obs.find(e => e.id == r[0]));
 
                     if (a >= 0) {
-                        this.obs.splice(this.obs.indexOf(a), r[0]);
+                        this.obs.splice(a, 1);
                     } else {
                         console.error("Failed to remove player", r);
                     }

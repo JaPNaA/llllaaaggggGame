@@ -155,7 +155,7 @@ function parseMessageB(e) {
 
                 if (a >= 0) {
                     console.log("Remove thing", r[0]);
-                    D.obs.splice(D.obs.indexOf(a), 1);
+                    D.obs.splice(a, 1);
                 } else {
                     console.error("Failed to remove player", r);
                 }

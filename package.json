@@ -4,7 +4,8 @@
     "description": "a game revolved around the concept of lag",
     "main": "main.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node ."
     },
     "repository": {
         "type": "git",
