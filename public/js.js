@@ -160,6 +160,25 @@ class G {
         return f;
     }
 
+    drawGrid() {
+        var X = this.X;
+
+        for(let i = 0; i < this.fov; i += 100000) {
+            X.beginPath();
+            X.strokeStyle = "#000";
+            X.moveTo(i * this.camera.scale, 0);
+            X.lineTo(i * this.camera.scale, this.fov * this.camera.scale);
+            X.stroke();
+        }
+        for (let i = 0; i < this.fov; i += 100000) {
+            X.beginPath();
+            X.strokeStyle = "#000";
+            X.moveTo(0, i * this.camera.scale);
+            X.lineTo(this.fov * this.camera.scale, i * this.camera.scale);
+            X.stroke();
+        }
+    }
+
     draw(e) {
         var tt = 0;
 
@@ -177,6 +196,7 @@ class G {
         this.X.translate(this.camera.x2, this.camera.y2);
         this.X.translate(-this.camera.x, -this.camera.y);
 
+        this.drawGrid();
         for (let i of this.obs) {
             i.draw();
         }

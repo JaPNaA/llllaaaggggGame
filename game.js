@@ -31,6 +31,7 @@ class Player {
         this.posChange = false;
 
         this.fov = 1000000;
+        this.tps = 30;
 
         this.id = this.game.cid++;
 
@@ -311,7 +312,7 @@ class Game {
     }
 
     start() {
-        this.sI = setInterval(() => this.tick(), 100);
+        this.sI = setInterval(() => this.tick(), 1000 / this.tps);
     }
 }
 
