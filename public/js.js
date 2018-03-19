@@ -1,5 +1,9 @@
 'use strict';
 
+function floorToNearest(e, f) {
+    return Math.floor(e / f) * f;
+}
+
 const VERSION = "0.1";
 
 class Thing {
@@ -135,6 +139,8 @@ class G {
         this.then = 0;
         this.fov = 100;
 
+        this.gridSize = 50000;
+
         this.resize();
     }
 
@@ -162,19 +168,33 @@ class G {
 
     drawGrid() {
         var X = this.X;
+        
+        var rx = this.camera.x / this.camera.scale,
+            ry = this.camera.y / this.camera.scale,
+            rxf = rx + this.fov / 2,
+            ryf = ry + this.fov / 2,
+            xf = this.camera.x - this.fov / 2,
+            xf2 = this.camera.x + this.fov / 2,
+            yf = this.camera.y - this.fov / 2,
+            yf2 = this.camera.y + this.fov / 2;
 
-        for(let i = 0; i < this.fov; i += 100000) {
+        X.strokeStyle = "#888";
+
+        for (let i = floorToNearest(rx - this.fov / 2, this.gridSize); i < rxf; i += this.gridSize) {
+            let ics = i * this.camera.scale;
+
             X.beginPath();
-            X.strokeStyle = "#000";
-            X.moveTo(i * this.camera.scale, 0);
-            X.lineTo(i * this.camera.scale, this.fov * this.camera.scale);
+            X.moveTo(ics, yf);
+            X.lineTo(ics, yf2);
             X.stroke();
         }
-        for (let i = 0; i < this.fov; i += 100000) {
+
+        for (let i = floorToNearest(ry - this.fov / 2, this.gridSize); i < ryf; i += this.gridSize) {
+            let ics = i * this.camera.scale;
+
             X.beginPath();
-            X.strokeStyle = "#000";
-            X.moveTo(0, i * this.camera.scale);
-            X.lineTo(this.fov * this.camera.scale, i * this.camera.scale);
+            X.moveTo(xf, ics);
+            X.lineTo(xf2, ics);
             X.stroke();
         }
     }

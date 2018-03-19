@@ -124,7 +124,7 @@ function parseMessageB(e) {
                 let pr = 7,
                     r = new Int32Array(e).slice(1),
                     rl = r.length / pr;
-                console.log(r);
+                // console.log(r);
                 for (let i = 0; i < rl; i++) {
                     let d = r.slice(pr * i, pr * (i + 1)),
                         t = D.obs.find(e => e.id == d[0]);
