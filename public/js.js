@@ -6,7 +6,7 @@ function floorToNearest(e, f) {
 
 const VERSION = "0.1";
 
-class Thing {
+class DrawableThing {
     constructor(e, g) {
         this.game = g;
 
@@ -98,7 +98,7 @@ class Camera {
 
     move(tt) {
         f: if (this.follow) {
-            if(!this.follow.follow) {
+            if (!this.follow.follow) {
                 this.follow = null;
                 break f;
             }
@@ -120,8 +120,11 @@ class Camera {
 
 class G {
     constructor() {
+        /** @type {HTMLCanvasElement} */ // @ts-ignore
         this.cvs = document.getElementById("c");
+        /** @type {CanvasRenderingContext2D} */ // @ts-ignore
         this.X = this.cvs.getContext("2d");
+        if (!this.X) { alert("Your browser still doesn't support canvas?! smh"); }
         this.obs = [];
 
         this.socketWorker = new Worker("socketWorker.js");
@@ -168,7 +171,7 @@ class G {
 
     drawGrid() {
         var X = this.X;
-        
+
         var rx = this.camera.x / this.camera.scale,
             ry = this.camera.y / this.camera.scale,
             rxf = rx + this.fov / 2,
@@ -294,7 +297,7 @@ class G {
                 if (d == VERSION) {
                     console.log("Version: " + d);
                 } else {
-                    location.reload(true);
+                    location.reload();
                 }
                 break;
             case 2:
@@ -303,7 +306,7 @@ class G {
                     if (e) {
                         Object.defineProperties(e, d[0]);
                     } else {
-                        this.obs.push(new Thing(d[0], this));
+                        this.obs.push(new DrawableThing(d[0], this));
                     }
                     break;
                 }
@@ -352,7 +355,7 @@ class G {
     start() {
         addEventListener("keydown", e => this.keydown(e));
         addEventListener("keyup", e => this.keyup(e));
-        addEventListener("resize", e => this.resize(e));
+        addEventListener("resize", e => this.resize());
 
         this.resize();
         this.draw();

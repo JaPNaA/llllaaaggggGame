@@ -23,7 +23,7 @@ function arrayToBuffer(ab) {
     return b;
 }
 
-function f(e) {
+function floorAll(e) {
     let el = e.length;
     for(let i = 0; i < el; i++) {
         e[i] = Math.round(e[i]);
@@ -39,6 +39,6 @@ function rand(e, f) {
 module.exports = {
     arrayToBuffer: arrayToBuffer,
     bufferToArray: bufferToArray,
-    f: f,
+    floorAll: floorAll,
     rand: rand
 };

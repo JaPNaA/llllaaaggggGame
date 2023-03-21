@@ -4,13 +4,26 @@ const HTTP = require("http"),
     WS = require("websocket").server,
     FS = require("fs");
 
+/**
+ * @typedef ClientAccepter
+ * @property {(client: import("websocket").connection) => ClientState} add
+ * 
+ * @typedef ClientState
+ * @property {(type: "utf8" | "binary", message: string | Buffer) => void} msg
+ * @property {() => void} disconnect
+ */
+
 class Server {
+    /**
+     * @param {number} port
+     */
     constructor(port) {
+        /** @type {ClientAccepter | null} */
         this.game = null;
 
         this.port = port;
         this.server = HTTP.createServer((q, r) => this.httpServerFunc(q, r));
-        this.server.on("error", function() {
+        this.server.on("error", function () {
             throw new Error("failed to connect");
         });
 
@@ -91,19 +104,25 @@ class Server {
         console.log(`Hosting on port ${this.port}.`);
 
         this.wsServer.on("request", req => {
-            let C = req.accept(null);
+            if (!this.game) { req.reject(500); return; }
 
-            this.clients.push(C);
-            this.game.add(C);
+            const client = req.accept(null);
 
-            C.on("message", e => {
+            this.clients.push(client);
+            const clientState = this.game.add(client);
+
+            client.on("message", e => {
                 // console.log("WS Msg " + e.type + " ->", e.utf8Data || e.binaryData);
-                C.plr.msg(e.type, e.utf8Data || e.binaryData);
+                if (e.type === "utf8") {
+                    clientState.msg(e.type, e.utf8Data);
+                } else {
+                    clientState.msg(e.type, e.binaryData);
+                }
             });
-            C.on("close", e => {
-                C.plr.disconnect();
+            client.on("close", e => {
+                clientState.disconnect();
 
-                this.clients.splice(this.clients.indexOf(C), 1);
+                this.clients.splice(this.clients.indexOf(client), 1);
                 console.log("WS Disconnect " + this.clients.length);
             });
 

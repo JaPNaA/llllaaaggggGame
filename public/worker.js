@@ -1,6 +1,7 @@
 'use strict';
 
 const D = {
+    /** @type {Thing[]} */
     obs: [],
     game: {
         width: 0,
@@ -150,12 +151,14 @@ function parseMessageB(e) {
             }
         case 4:
             {
-                let r = new Int32Array(e).slice(1),
-                    a = D.obs.indexOf(D.obs.find(e => e.id == r[0]));
+                const r = new Int32Array(e).slice(1);
+                const obj = D.obs.find(e => e.id == r[0]);
+                if (!obj) { break; }
+                const index = D.obs.indexOf(obj);
 
-                if (a >= 0) {
+                if (index >= 0) {
                     console.log("Remove thing", r[0]);
-                    D.obs.splice(a, 1);
+                    D.obs.splice(index, 1);
                 } else {
                     console.error("Failed to remove player", r);
                 }
