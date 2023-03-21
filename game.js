@@ -175,14 +175,14 @@ class Player {
         for(let i of this.playersSeeChanges.add) {
             this.playersSee.push(i);
             this.send(2, i);
-            console.log("\x1b[31m", this.id + " <- new " + i.id);
+            console.log(this.id + " <- new " + i.id);
         }
         this.playersSeeChanges.add.length = 0;
 
         // remove players
         for(let i of this.playersSeeChanges.rem) {
             this.send(4, i.id);
-            console.log("\x1b[31m", this.id + " <- rem " + i.id);
+            console.log(this.id + " <- rem " + i.id);
             this.playersSee.splice(this.playersSee.indexOf(i), 1);
         }
         this.playersSeeChanges.rem.length = 0;
