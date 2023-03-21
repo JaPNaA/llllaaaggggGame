@@ -12,7 +12,7 @@ function bufferToArray(buf) {
 }
 
 function arrayToBuffer(ab) {
-    var b = new Buffer(ab.byteLength),
+    var b = Buffer.alloc(ab.byteLength),
         v = new Uint8Array(ab),
         bl = b.length;
 
